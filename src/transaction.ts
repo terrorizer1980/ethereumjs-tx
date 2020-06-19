@@ -338,6 +338,25 @@ export default class Transaction {
     // Note: This never gets executed, defineProperties overwrites it.
     return rlp.encode(this.raw)
   }
+  /**
+   * Returns the rlp encoding of the transaction
+   */
+  unsignedSerialize(): Buffer {
+    let items
+    if (this._implementsEIP155()) {
+      items = [
+        ...this.raw.slice(0, 6),
+        toBuffer(this.getChainId()),
+        // TODO: stripping zeros should probably be a responsibility of the rlp module
+        stripZeros(toBuffer(0)),
+        stripZeros(toBuffer(0)),
+      ]
+    } else {
+      items = this.raw.slice(0, 6)
+    }
+    // Note: This never gets executed, defineProperties overwrites it.
+    return rlp.encode(items)
+  }
 
   /**
    * Returns the transaction in JSON format
